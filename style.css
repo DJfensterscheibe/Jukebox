@@ -40,7 +40,7 @@ body {
     radial-gradient(2px 2px at 6% 40%, #c9f6ff 50%, transparent 51%),
     radial-gradient(1px 1px at 45% 6%, #fff 50%, transparent 51%),
     radial-gradient(1px 1px at 68% 42%, #fff 50%, transparent 51%);
-  animation: twinkle 4s steps(2) infinite; }
+  animation: twinkle 4s steps(2) infinite; will-change: opacity; }
 @keyframes twinkle { 50% { opacity: .55; } }
 .sun { position: absolute; left: 50%; top: 56%; width: min(70vmin, 520px); aspect-ratio: 1;
   transform: translate(-50%, -78%); border-radius: 50%;
@@ -48,22 +48,24 @@ body {
   box-shadow: 0 0 80px 10px rgba(255, 47, 185, .45); overflow: hidden; }
 .sun::after { content: ""; position: absolute; left: 0; right: 0; top: 48%; bottom: 0;
   background: repeating-linear-gradient(180deg, transparent 0 9px, #2a0849 9px 13px, transparent 13px 18px, #2a0849 18px 24px); }
-.grid { position: absolute; left: -50%; right: -50%; bottom: 0; height: 44%;
+/* Gitter: die Ebene ist gekippt, nur das innere Muster wird verschoben (GPU, ruckelfrei) */
+.grid { position: absolute; left: -50%; right: -50%; bottom: 0; height: 44%; overflow: hidden;
   transform-origin: 50% 0; transform: perspective(300px) rotateX(62deg);
-  background-image:
-    linear-gradient(var(--pink) 2px, transparent 2px),
-    linear-gradient(90deg, var(--pink) 2px, transparent 2px);
-  background-size: 60px 60px;
-  animation: gridmove 1.2s linear infinite;
-  filter: drop-shadow(0 0 6px var(--pink));
   -webkit-mask: linear-gradient(180deg, transparent 0%, #000 30%);
           mask: linear-gradient(180deg, transparent 0%, #000 30%); }
-@keyframes gridmove { to { background-position: 0 60px; } }
+.grid::before { content: ""; position: absolute; left: 0; right: 0; top: -60px; bottom: 0;
+  background-image:
+    linear-gradient(rgba(255, 47, 185, .35) 6px, transparent 6px),
+    linear-gradient(90deg, rgba(255, 47, 185, .35) 6px, transparent 6px),
+    linear-gradient(#ff5fcf 2px, transparent 2px),
+    linear-gradient(90deg, #ff5fcf 2px, transparent 2px);
+  background-size: 60px 60px; background-position: 0 -2px, -2px 0, 0 0, 0 0;
+  animation: gridmove 1.2s linear infinite; will-change: transform; }
+@keyframes gridmove { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 60px, 0); } }
 .horizon { position: absolute; left: 0; right: 0; top: 56%; height: 2px; background: var(--cyan);
   box-shadow: 0 0 18px 4px var(--cyan); }
 .scanlines { position: fixed; inset: 0; z-index: 50; pointer-events: none;
-  background: repeating-linear-gradient(180deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
-  mix-blend-mode: multiply; }
+  background: repeating-linear-gradient(180deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px); }
 .vignette { position: fixed; inset: 0; z-index: 49; pointer-events: none;
   background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.55) 100%); }
 
@@ -95,5 +97,5 @@ body {
 
 body.demo { padding-top: 26px; }
 @media (prefers-reduced-motion: reduce) {
-  .grid, .stars { animation: none; }
+  .grid::before, .stars { animation: none; }
 }

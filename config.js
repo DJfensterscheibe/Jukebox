@@ -4,7 +4,7 @@
 // ============================================================
 window.SONGWUNSCH_CONFIG = {
   // Name der Party (erscheint auf Gäste-Seite und Host-Bildschirm)
-  partyName: "JUKEBOX",
+  partyName: "LAURENZ 20. GEBURTSTAG",
 
   // Wartezeit in Sekunden zwischen zwei Wünschen pro Handy (Anti-Spam)
   cooldownSeconds: 30,
