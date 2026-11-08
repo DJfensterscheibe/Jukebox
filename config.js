@@ -7,7 +7,7 @@ window.SONGWUNSCH_CONFIG = {
   partyName: "LAURENZ 20. GEBURTSTAG",
 
   // Wartezeit in Sekunden zwischen zwei Wünschen pro Handy (Anti-Spam)
-  cooldownSeconds: 30,
+  cooldownSeconds: 5,
 
   // Ab so vielen Wünschen bekommt eine Box die Flammen-Animation
   flameAt: 5,
