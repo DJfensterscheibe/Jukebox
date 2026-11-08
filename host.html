@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Songwunsch · HOST</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { overflow: hidden; height: 100vh; }
+  .wrap { position: relative; z-index: 2; height: 100vh; display: grid; grid-template-columns: 1fr 320px; gap: 24px; padding: 22px 24px; }
+
+  body.demo .wrap { height: calc(100vh - 26px); }
+  /* ---------- Hauptbereich ---------- */
+  .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .top { display: flex; align-items: baseline; gap: 22px; margin-bottom: 18px; flex-wrap: wrap; }
+  .top h1 { margin: 0; font-size: clamp(22px, 2.6vw, 40px); letter-spacing: 3px; }
+  .top .party { font-family: var(--pixel); font-size: 13px; letter-spacing: 2px; }
+  .board { position: relative; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 26px 8px 16px; scrollbar-width: none; }
+  .board::-webkit-scrollbar { display: none; }
+  .tiles { --row: 118px; --col: 240px; display: grid; gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(var(--col), 1fr)); grid-auto-rows: var(--row); grid-auto-flow: dense; }
+
+  .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; text-align: center; }
+  .empty .big { font-family: var(--pixel); font-size: clamp(18px, 2.4vw, 34px); }
+  .empty .small { font-size: 30px; color: #c7b5ef; }
+
+  /* ---------- Song-Box ---------- */
+  .box { position: relative; grid-column: span 1; grid-row: span 1; cursor: pointer;
+    filter: drop-shadow(0 0 10px var(--glow, rgba(45,226,255,.45))); transition: filter .3s; }
+  .box.s2 { grid-column: span 2; }
+  .box.s3 { grid-column: span 2; grid-row: span 2; }
+  .box.s4 { grid-column: span 3; grid-row: span 2; }
+  .face { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
+    padding: 14px 18px; border: 4px solid var(--bd); background: var(--bgc); color: var(--fg);
+    clip-path: polygon(0 10px, 10px 10px, 10px 0, calc(100% - 10px) 0, calc(100% - 10px) 10px, 100% 10px,
+      100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 10px calc(100% - 10px), 0 calc(100% - 10px)); }
+  .face .tag { position: absolute; top: 8px; left: 14px; font-family: var(--pixel); font-size: 8px; letter-spacing: 1px; opacity: .75; }
+  .face .title { position: relative; z-index: 3; font-family: var(--term); font-size: var(--fs, 34px); line-height: .95;
+    overflow-wrap: normal; word-break: normal; hyphens: manual; }
+  .face .artist { position: relative; z-index: 3; font-size: calc(var(--fs, 34px) * .55); opacity: .8; margin-top: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .box.s2 .face .title { --fs: 42px; }
+  .box.s3 .face .title, .box.s3 .face .artist { --fs: 58px; }
+  .box.s4 .face .title, .box.s4 .face .artist { --fs: 70px; }
+  .box.s3 .face, .box.s4 .face { padding: 22px 28px; }
+  .box.s3 .face .tag, .box.s4 .face .tag { font-size: 10px; top: 14px; left: 22px; }
+
+  .badge { position: absolute; z-index: 6; top: -16px; right: -10px; font-family: var(--pixel); font-size: 14px; color: #1a0638;
+    background: var(--yellow); padding: 8px 10px; box-shadow: 4px 4px 0 var(--pink); transform: rotate(4deg); }
+  .box.s3 .badge, .box.s4 .badge { font-size: 20px; padding: 10px 14px; top: -20px; }
+
+  /* Themes */
+  .th0 { --bgc: linear-gradient(135deg, #2a0a4f, #4b0f6b); --bd: var(--cyan); --fg: #fff; --glow: rgba(45,226,255,.55); }
+  .th0 .title { text-shadow: 0 0 10px rgba(45,226,255,.8); }
+  .th1 { --bgc: #020a05; --bd: var(--green); --fg: var(--green); --glow: rgba(57,255,136,.45); }
+  .th1 .title::before { content: "> "; }
+  .th1 .title { text-shadow: 0 0 8px rgba(57,255,136,.8); }
+  .th1 .face { background-image: repeating-linear-gradient(180deg, rgba(57,255,136,.06) 0 2px, transparent 2px 4px); }
+  .th2 { --bgc: linear-gradient(180deg, #ffe45e 0%, #ff8a3d 45%, #ff2fb9 100%); --bd: #fff; --fg: #2a0849; --glow: rgba(255,138,61,.6); }
+  .th3 { --bgc: #0d1b6e; --bd: var(--yellow); --fg: var(--yellow); --glow: rgba(255,228,94,.45); }
+  .th3 .face { box-shadow: inset 0 0 0 4px #0d1b6e, inset 0 0 0 7px var(--pink); }
+  .th3 .title { text-shadow: 3px 3px 0 #ff2fb9; }
+  .th4 { --bgc: linear-gradient(180deg, #120330 0%, #2b0a56 50%, #120330 100%); --bd: var(--pink); --fg: #fff; --glow: rgba(255,47,185,.6); }
+  .th4 .title { background: linear-gradient(180deg, #fff 0%, #b3f3ff 45%, #2de2ff 50%, #ff8fe0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .th5 { --bgc: #050318; --bd: #2de2ff; --fg: #bff6ff; --glow: rgba(45,226,255,.7); }
+  .th5 .face { background-image: linear-gradient(rgba(45,226,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(45,226,255,.12) 1px, transparent 1px); background-size: 18px 18px; }
+  .th6 { --bgc: #ff2fb9; --bd: #1a0638; --fg: #fff; --glow: rgba(255,47,185,.7); }
+  .th6 .title { text-shadow: 3px 3px 0 #1a0638; }
+  .th7 { --bgc: linear-gradient(135deg, #0b0221 0 80%, #9d4dff 80% 83%, #0b0221 83% 87%, #ff2fb9 87% 90%, #0b0221 90%); --bd: var(--purple); --fg: #f4ecff; --glow: rgba(157,77,255,.6); }
+
+  /* Animationen */
+  .box.new { animation: spawn .6s cubic-bezier(.2, 1.6, .4, 1) both; }
+  @keyframes spawn { 0% { transform: scale(0) rotate(-8deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  .box.new .face::after { content: ""; position: absolute; inset: 0; background: #fff; animation: flash .5s ease-out forwards; z-index: 5; }
+  @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
+  .box.bump { animation: bump .5s ease-out; }
+  @keyframes bump { 30% { transform: scale(1.08); } 100% { transform: none; } }
+  .plusone { position: absolute; z-index: 9; right: 18px; top: 10px; font-family: var(--pixel); font-size: 20px; color: var(--yellow);
+    text-shadow: 2px 2px 0 var(--pink); animation: floatup 1.1s ease-out forwards; pointer-events: none; }
+  @keyframes floatup { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-50px); opacity: 0; } }
+  .box.bye { animation: bye .45s steps(5) forwards; }
+  @keyframes bye { to { transform: scale(.2); opacity: 0; filter: brightness(3); } }
+
+  /* ---------- Flammen ---------- */
+  .box.fire { --glow: rgba(255, 110, 30, .9); animation: firepulse 1.4s ease-in-out infinite; }
+  .box.fire.new { animation: spawn .6s cubic-bezier(.2, 1.6, .4, 1) both, firepulse 1.4s ease-in-out .6s infinite; }
+  @keyframes firepulse { 50% { filter: drop-shadow(0 0 22px rgba(255, 70, 20, 1)) drop-shadow(0 0 6px #ffe45e); } }
+  .box.fire .face { border-color: #ffb13d; }
+  .embers { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .embers i { position: absolute; bottom: -30%; width: 22%; height: 70%; border-radius: 50% 50% 40% 40%;
+    background: radial-gradient(ellipse at 50% 90%, rgba(255,240,140,.95) 0%, rgba(255,140,40,.8) 30%, rgba(255,40,80,.5) 55%, transparent 72%);
+    filter: blur(4px); mix-blend-mode: screen; animation: rise 1.3s ease-in infinite; opacity: 0; }
+  @keyframes rise { 0% { transform: translateY(20%) scale(1); opacity: 0; } 20% { opacity: .95; }
+    100% { transform: translateY(-75%) scale(.35); opacity: 0; } }
+  .tongues { position: absolute; left: 4%; right: 4%; top: -46px; height: 56px; z-index: 4; pointer-events: none; }
+  .tongues b { position: absolute; bottom: 0; width: 14%; height: 100%;
+    background: linear-gradient(0deg, #ff2f4a 0%, #ff8a3d 40%, #ffe45e 75%, transparent 100%);
+    clip-path: polygon(50% 0, 72% 35%, 90% 30%, 100% 100%, 0 100%, 12% 40%, 28% 48%);
+    transform-origin: 50% 100%; animation: lick .5s steps(3) infinite alternate; image-rendering: pixelated; }
+  @keyframes lick { 0% { transform: scaleY(.55) skewX(-6deg); } 100% { transform: scaleY(1.05) skewX(6deg); } }
+
+  /* Gespielt-Bestätigung */
+  .confirm { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+    background: rgba(7, 1, 26, .9); font-family: var(--pixel); font-size: 11px; color: #fff; padding: 8px; text-align: center; }
+  .confirm button { font-family: var(--pixel); font-size: 11px; border: 0; padding: 10px 12px; cursor: pointer; }
+  .confirm .yes { background: var(--green); color: #04220f; box-shadow: 0 4px 0 #128a43; }
+  .confirm .no { background: #4a2a7a; color: #fff; box-shadow: 0 4px 0 #24123f; }
+
+  /* ---------- Seitenleiste ---------- */
+  .side { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
+  .qrbox { padding: 20px 18px 18px; text-align: center; }
+  .qrbox .scan { font-family: var(--pixel); font-size: 16px; letter-spacing: 2px; margin-bottom: 14px; }
+  .qr { background: #fff; padding: 12px; display: inline-block; line-height: 0; box-shadow: 6px 6px 0 var(--pink); }
+  .qr svg, .qr img { width: 220px; height: 220px; image-rendering: pixelated; }
+  .qrbox .cta { font-family: var(--pixel); font-size: 10px; line-height: 1.7; margin-top: 18px; }
+  .qrbox .url { font-size: 19px; color: #c7b5ef; margin-top: 10px; word-break: break-all; line-height: 1; }
+  .stats { padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+  .stats .n { font-family: var(--pixel); font-size: 24px; }
+  .stats .l { font-family: var(--pixel); font-size: 8px; color: #b9a8dd; margin-top: 8px; letter-spacing: 1px; }
+  .ctrl { margin-top: auto; display: grid; gap: 10px; opacity: .35; transition: opacity .3s; }
+  .ctrl:hover { opacity: 1; }
+  .ctrl .help { font-size: 18px; color: #b9a8dd; text-align: center; line-height: 1; }
+  .ctrl button { font-family: var(--pixel); font-size: 10px; letter-spacing: 1px; padding: 11px; border: 2px solid var(--purple); background: rgba(17,4,40,.9); color: #fff; cursor: pointer; }
+  .ctrl button:hover { border-color: var(--cyan); }
+  .ctrl button.danger.armed { background: var(--hot); border-color: #fff; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; height: auto; }
+    .wrap { grid-template-columns: 1fr; height: auto; }
+    .board { overflow: visible; }
+    .tiles { --col: 160px; }
+    .box.s4 { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+<div class="scene"><div class="stars"></div><div class="sun"></div><div class="horizon"></div><div class="grid"></div></div>
+<div class="scanlines"></div><div class="vignette"></div>
+
+<div class="wrap">
+  <section class="stage">
+    <div class="top">
+      <h1 class="chrome">★ SONG REQUESTS ★</h1>
+      <div class="party neon-c" id="party"></div>
+    </div>
+    <div class="board" id="board">
+      <div class="tiles" id="tiles"></div>
+      <div class="empty" id="empty">
+        <div class="big neon-p">WAITING FOR PLAYERS<span class="blink">_</span></div>
+        <div class="small">QR-Code scannen und den ersten Song wünschen!</div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="qrbox pixel-box">
+      <div class="scan neon-y">SCAN ME!</div>
+      <div class="qr" id="qr"></div>
+      <div class="cta neon-c">SONG WÜNSCHEN<br>OHNE ANMELDUNG</div>
+      <div class="url" id="url"></div>
+    </div>
+    <div class="stats pixel-box">
+      <div><div class="n neon-p" id="nReq">0</div><div class="l">WÜNSCHE</div></div>
+      <div><div class="n neon-c" id="nSongs">0</div><div class="l">SONGS</div></div>
+    </div>
+    <div class="ctrl">
+      <div class="help">Box anklicken = als gespielt entfernen</div>
+      <button id="fs" type="button">⛶ VOLLBILD</button>
+      <button id="reset" class="danger" type="button">↺ ALLES LÖSCHEN</button>
+    </div>
+  </aside>
+</div>
+
+<script src="config.js"></script>
+<script src="qrcode.js"></script>
+<script type="module">
+import { config, initBackend, clusterRequests, hash, esc } from "./app.js";
+
+const $ = id => document.getElementById(id);
+$("party").textContent = config.partyName;
+
+// ---------- QR-Code zur Gäste-Seite ----------
+const guestUrl = new URL("./", location.href).href;
+$("url").textContent = guestUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+try {
+  const qr = qrcode(0, "M");
+  qr.addData(guestUrl);
+  qr.make();
+  $("qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+} catch (e) { $("qr").textContent = "QR-Fehler"; }
+
+// ---------- Rendering ----------
+const tiles = $("tiles");
+const nodes = new Map();          // cluster-id -> { el, count }
+let current = [];
+let backend = null;
+let firstRender = true;
+
+function sizeClass(n) {
+  if (n >= 8) return "s4";
+  if (n >= 3) return "s3";
+  if (n === 2) return "s2";
+  return "s1";
+}
+
+function makeBox(c) {
+  const el = document.createElement("div");
+  el.className = "box";
+  el.dataset.id = c.id;
+  el.innerHTML = `<div class="tongues"></div><div class="face"><div class="embers"></div><div class="tag"></div><div class="title"></div><div class="artist"></div></div><div class="badge" hidden></div>`;
+  const tg = el.querySelector(".tongues");
+  for (let i = 0; i < 7; i++) {
+    const b = document.createElement("b");
+    b.style.left = (i * 14.3) + "%";
+    b.style.animationDelay = (-(i * 0.17) % 0.5) + "s";
+    b.style.animationDuration = (0.38 + (i % 3) * 0.08) + "s";
+    tg.appendChild(b);
+  }
+  const em = el.querySelector(".embers");
+  for (let i = 0; i < 9; i++) {
+    const s = document.createElement("i");
+    s.style.left = (i * 11 - 6) + "%";
+    s.style.animationDelay = (i * 0.29 % 1.3) + "s";
+    s.style.animationDuration = (1.0 + (i % 4) * 0.18) + "s";
+    em.appendChild(s);
+  }
+  el.addEventListener("click", ev => onBoxClick(el, ev));
+  return el;
+}
+
+function updateBox(el, c, rank) {
+  const fire = c.count >= config.flameAt;
+  const theme = "th" + (hash(c.id) % 8);
+  el.className = `box ${theme} ${sizeClass(c.count)}${fire ? " fire" : ""}` +
+    (el.classList.contains("new") ? " new" : "") + (el.classList.contains("bump") ? " bump" : "");
+  el.querySelector(".tag").textContent = (fire ? "🔥 ON FIRE · " : "") + "TRACK " + String(rank).padStart(2, "0");
+  el.querySelector(".title").textContent = c.label;
+  const ar = el.querySelector(".artist");
+  ar.textContent = c.artist || "";
+  ar.hidden = !c.artist;
+  const badge = el.querySelector(".badge");
+  badge.hidden = c.count < 2;
+  badge.textContent = "x" + c.count;
+  el.querySelector(".tongues").hidden = !fire;
+  el.querySelector(".embers").hidden = !fire;
+}
+
+function render(list) {
+  current = list;
+  $("empty").style.display = list.length ? "none" : "flex";
+  $("nReq").textContent = list.reduce((s, c) => s + c.count, 0);
+  $("nSongs").textContent = list.length;
+
+  const seen = new Set();
+  list.forEach((c, i) => {
+    seen.add(c.id);
+    let n = nodes.get(c.id);
+    if (!n) {
+      const el = makeBox(c);
+      if (!firstRender) { el.classList.add("new"); setTimeout(() => el.classList.remove("new"), 700); }
+      n = { el, count: c.count };
+      nodes.set(c.id, n);
+    } else if (c.count > n.count) {
+      n.el.classList.remove("bump"); void n.el.offsetWidth; n.el.classList.add("bump");
+      setTimeout(() => n.el.classList.remove("bump"), 600);
+      const p = document.createElement("div");
+      p.className = "plusone"; p.textContent = "+" + (c.count - n.count);
+      n.el.appendChild(p); setTimeout(() => p.remove(), 1200);
+    }
+    n.count = c.count;
+    updateBox(n.el, c, i + 1);
+  });
+  for (const [id, n] of nodes) if (!seen.has(id)) { n.el.remove(); nodes.delete(id); }
+
+  // Reihenfolge nur anfassen, wenn sie sich geändert hat (sonst starten Animationen neu)
+  const want = list.map(c => nodes.get(c.id).el);
+  const have = Array.from(tiles.children);
+  if (want.length !== have.length || want.some((el, i) => el !== have[i])) want.forEach(el => tiles.appendChild(el));
+  firstRender = false;
+  fit();
+}
+
+// Schriftgröße pro Box so anpassen, dass der Titel komplett reinpasst
+function fitText(el) {
+  const face = el.querySelector(".face"), title = el.querySelector(".title");
+  const base = el.classList.contains("s4") ? 74 : el.classList.contains("s3") ? 60 : el.classList.contains("s2") ? 44 : 36;
+  let fs = base;
+  const over = () => face.scrollHeight > face.clientHeight + 1 || title.scrollWidth > title.clientWidth + 1;
+  face.style.setProperty("--fs", fs + "px");
+  title.style.setProperty("--fs", fs + "px");
+  el.querySelector(".artist").style.setProperty("--fs", fs + "px");
+  while (over() && fs > 14) {
+    fs -= 2;
+    title.style.setProperty("--fs", fs + "px");
+    el.querySelector(".artist").style.setProperty("--fs", fs + "px");
+  }
+}
+function fitAll() { tiles.querySelectorAll(".box").forEach(fitText); }
+
+// Wenn es zu viele Boxen werden: alles etwas kleiner machen
+function fit() {
+  const board = $("board");
+  if (window.innerWidth <= 900) { fitAll(); return; }
+  const steps = [[118, 240], [100, 210], [86, 180], [74, 160], [64, 140]];
+  for (const [r, c] of steps) {
+    tiles.style.setProperty("--row", r + "px");
+    tiles.style.setProperty("--col", c + "px");
+    tiles.style.fontSize = "";
+    if (tiles.scrollHeight <= board.clientHeight - 30) break;
+  }
+  fitAll();
+}
+document.fonts && document.fonts.ready.then(() => fit());
+window.addEventListener("resize", fit);
+
+// ---------- Gespielt markieren ----------
+function onBoxClick(el, ev) {
+  if (ev.target.closest(".confirm")) return;
+  document.querySelectorAll(".confirm").forEach(c => c.remove());
+  const c = current.find(x => x.id === el.dataset.id);
+  if (!c) return;
+  const ov = document.createElement("div");
+  ov.className = "confirm";
+  ov.innerHTML = `<span>GESPIELT?</span><button class="yes" type="button">✓ JA</button><button class="no" type="button">✗</button>`;
+  ov.querySelector(".no").onclick = e => { e.stopPropagation(); ov.remove(); };
+  ov.querySelector(".yes").onclick = e => {
+    e.stopPropagation();
+    el.classList.add("bye");
+    setTimeout(() => backend && backend.remove(c.ids), 420);
+  };
+  el.querySelector(".face").appendChild(ov);
+  setTimeout(() => ov.isConnected && ov.remove(), 6000);
+}
+
+// ---------- Steuerung ----------
+$("fs").onclick = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen?.();
+};
+let armTimer = null;
+$("reset").onclick = () => {
+  const b = $("reset");
+  if (!b.classList.contains("armed")) {
+    b.classList.add("armed"); b.textContent = "SICHER? NOCHMAL KLICKEN";
+    armTimer = setTimeout(() => { b.classList.remove("armed"); b.textContent = "↺ ALLES LÖSCHEN"; }, 3500);
+    return;
+  }
+  clearTimeout(armTimer);
+  b.classList.remove("armed"); b.textContent = "↺ ALLES LÖSCHEN";
+  if (backend) backend.remove(current.flatMap(c => c.ids));
+};
+
+// ---------- Start ----------
+try {
+  backend = await initBackend();
+  if (backend.demo) {
+    const d = document.createElement("div");
+    d.className = "demo-banner";
+    d.textContent = "DEMO-MODUS – Firebase noch nicht eingerichtet (siehe ANLEITUNG)";
+    document.body.appendChild(d);
+    document.body.classList.add("demo");
+  }
+  backend.subscribe(reqs => render(clusterRequests(reqs)));
+} catch (e) {
+  $("empty").querySelector(".big").textContent = "KEINE VERBINDUNG – config.js prüfen";
+}
+</script>
+</body>
+</html>

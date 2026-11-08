@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "requests": {
+      ".read": true,
+      "$id": {
+        ".write": "!data.exists() || !newData.exists()",
+        ".validate": "newData.hasChildren(['text', 't']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 80 && newData.child('t').val() == now",
+        "text": { ".validate": true },
+        "t": { ".validate": true },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
