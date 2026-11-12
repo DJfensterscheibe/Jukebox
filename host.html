@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Songwunsch · HOST</title>
+<script src="config.js"></script>
+<script>document.documentElement.dataset.theme = new URLSearchParams(location.search).get("theme") || (window.SONGWUNSCH_CONFIG || {}).theme || "synthwave";</script>
 <link rel="stylesheet" href="style.css">
 <style>
   body { overflow: hidden; height: 100vh; }
@@ -54,6 +56,7 @@
   .label .tag { position: absolute; top: 9px; left: 11px; font-family: var(--pixel); font-size: 7px; letter-spacing: 1px; opacity: .7; z-index: 3; }
   .label .title { position: relative; z-index: 3; font-family: var(--term); font-size: var(--fs, 34px); line-height: .95; margin-top: 4px;
     overflow-wrap: normal; word-break: normal; }
+  .label .title, .label .artist { flex: none; }
   .label .artist { position: relative; z-index: 3; font-size: calc(var(--fs, 34px) * .55); opacity: .78; margin-top: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .box.s3 .face, .box.s4 .face { padding: 26px 14px 18px; }
@@ -107,18 +110,18 @@
   /* Varianten: Gehäusefarbe + Etikett */
   .th0 { --body: #3a3550; --label: linear-gradient(180deg, #ffe45e, #ff8a3d 55%, #ff2fb9); --ink: #2a0849; --glow: rgba(255,47,185,.35); }
   .th1 { --body: #6c2bd9; --label: #0b0221; --ink: #2de2ff; --glow: rgba(157,77,255,.45); }
-  .th1 .label { background-image: linear-gradient(rgba(45,226,255,.13) 1px, transparent 1px), linear-gradient(90deg, rgba(45,226,255,.13) 1px, transparent 1px); background-size: 16px 16px; }
-  .th1 .title { text-shadow: 0 0 8px rgba(45,226,255,.7); }
+  [data-theme="synthwave"] .th1 .label { background-image: linear-gradient(rgba(45,226,255,.13) 1px, transparent 1px), linear-gradient(90deg, rgba(45,226,255,.13) 1px, transparent 1px); background-size: 16px 16px; }
+  [data-theme="synthwave"] .th1 .title { text-shadow: 0 0 8px rgba(45,226,255,.7); }
   .th2 { --body: #ff2fb9; --label: #fff3d6; --ink: #2a0849; --glow: rgba(255,47,185,.45); }
   .th3 { --body: #17a9cc; --label: #0d1b6e; --ink: #ffe45e; --glow: rgba(45,226,255,.4); }
-  .th3 .title { text-shadow: 2px 2px 0 #ff2fb9; }
+  [data-theme="synthwave"] .th3 .title { text-shadow: 2px 2px 0 #ff2fb9; }
   .th4 { --body: #ff9a2e; --label: #1a0638; --ink: #ff6fd0; --glow: rgba(255,138,61,.45); }
-  .th4 .title { text-shadow: 0 0 8px rgba(255,47,185,.7); }
+  [data-theme="synthwave"] .th4 .title { text-shadow: 0 0 8px rgba(255,47,185,.7); }
   .th5 { --body: #a7abbd; --label: #111; --ink: #fff; --glow: rgba(200,210,255,.3); }
-  .th5 .title { background: linear-gradient(180deg, #fff 0%, #b3f3ff 45%, #2de2ff 50%, #ff8fe0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  [data-theme="synthwave"] .th5 .title { background: linear-gradient(180deg, #fff 0%, #b3f3ff 45%, #2de2ff 50%, #ff8fe0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .th6 { --body: #1f9e64; --label: #031a0c; --ink: #39ff88; --glow: rgba(57,255,136,.35); }
-  .th6 .title::before { content: "> "; }
-  .th6 .label { background-image: repeating-linear-gradient(180deg, rgba(57,255,136,.07) 0 2px, transparent 2px 4px); }
+  [data-theme="synthwave"] .th6 .title::before { content: "> "; }
+  [data-theme="synthwave"] .th6 .label { background-image: repeating-linear-gradient(180deg, rgba(57,255,136,.07) 0 2px, transparent 2px 4px); }
   .th7 { --body: #e8344e; --label: #f4ecff; --ink: #1a0638; --glow: rgba(255,77,109,.4); }
 
   /* Animationen (nur transform/opacity = flüssig) */
@@ -135,17 +138,23 @@
   @keyframes bye { 40% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(.2); opacity: 0; } }
 
   /* ---------- Flammen ---------- */
+  :root { --fl1: #b0002a; --fl2: #ff2f4a; --fl3: #ff6a2a; --fl4: #ff9d3d; --fl5: #ffe45e; --fl6: #fffbd0;
+    --heat1: rgba(255,140,30,.7); --heat2: rgba(255,40,60,.35); --heat3: rgba(255,80,20,.6);
+    --em1: rgba(255,240,140,.9); --em2: rgba(255,140,40,.6); --em3: rgba(255,40,80,.28); }
+  [data-theme="gameboy"] { --fl1: #0f380f; --fl2: #0f380f; --fl3: #306230; --fl4: #8bac0f; --fl5: #9bbc0f; --fl6: #c4dc5a;
+    --heat1: rgba(155,188,15,.6); --heat2: rgba(48,98,48,.4); --heat3: rgba(155,188,15,.45);
+    --em1: rgba(196,220,90,.8); --em2: rgba(139,172,15,.5); --em3: rgba(48,98,48,.3); }
   .box.fire .face { --glow: rgba(255, 110, 30, .9); }
   /* pulsierendes Glühen: fester Schatten, nur Deckkraft animiert */
   .heat { position: absolute; inset: -18px -14px -10px; border-radius: 18px; z-index: -1; pointer-events: none; display: none;
-    background: radial-gradient(ellipse at 50% 70%, rgba(255,140,30,.7), rgba(255,40,60,.35) 55%, transparent 78%);
-    box-shadow: 0 0 50px 18px rgba(255, 80, 20, .6); animation: heat .7s ease-in-out infinite alternate; will-change: opacity; }
+    background: radial-gradient(ellipse at 50% 70%, var(--heat1), var(--heat2) 55%, transparent 78%);
+    box-shadow: 0 0 50px 18px var(--heat3); animation: heat .7s ease-in-out infinite alternate; will-change: opacity; }
   .box.fire .heat { display: block; }
   @keyframes heat { from { opacity: .45; } to { opacity: 1; } }
   /* Glut im Etikett */
   .embers { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
   .embers i { position: absolute; bottom: -35%; width: 28%; height: 85%; border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 85%, rgba(255,240,140,.9) 0%, rgba(255,140,40,.6) 28%, rgba(255,40,80,.28) 50%, transparent 68%);
+    background: radial-gradient(ellipse at 50% 85%, var(--em1) 0%, var(--em2) 28%, var(--em3) 50%, transparent 68%);
     animation: rise 1.1s ease-in infinite; opacity: 0; will-change: transform, opacity; }
   @keyframes rise { 0% { transform: translate3d(0, 20%, 0) scale(1); opacity: 0; } 20% { opacity: .95; }
     100% { transform: translate3d(0, -80%, 0) scale(.35); opacity: 0; } }
@@ -158,31 +167,92 @@
   .tongues.side-l { left: -34px; }
   .tongues.side-r { right: -34px; }
   .tongues b { position: absolute; bottom: 0; width: 13%; height: 100%;
-    background: linear-gradient(0deg, #ff2f4a 0%, #ff6a2a 25%, #ff9d3d 50%, #ffe45e 78%, #fffbd0 92%, transparent 100%);
+    background: linear-gradient(0deg, var(--fl2) 0%, var(--fl3) 25%, var(--fl4) 50%, var(--fl5) 78%, var(--fl6) 92%, transparent 100%);
     clip-path: polygon(50% 0, 66% 28%, 84% 18%, 92% 55%, 100% 100%, 0 100%, 8% 52%, 18% 24%, 34% 36%);
     transform-origin: 50% 100%; animation: lick .42s steps(3) infinite alternate; will-change: transform; }
-  .tongues.back b { background: linear-gradient(0deg, #b0002a 0%, #ff2f4a 35%, #ff6a2a 70%, transparent 100%); width: 15%; }
+  .tongues.back b { background: linear-gradient(0deg, var(--fl1) 0%, var(--fl2) 35%, var(--fl3) 70%, transparent 100%); width: 15%; }
   .tongues.side-l b, .tongues.side-r b { width: 100%; height: 28%; left: 0 !important;
-    background: linear-gradient(90deg, transparent, #ffe45e 20%, #ff8a3d 55%, #ff2f4a 100%);
+    background: linear-gradient(90deg, transparent, var(--fl5) 20%, var(--fl4) 55%, var(--fl2) 100%);
     clip-path: polygon(0 50%, 30% 20%, 45% 35%, 100% 0, 100% 100%, 45% 65%, 30% 80%);
     transform-origin: 100% 50%; animation-name: licks; }
-  .tongues.side-r b { background: linear-gradient(270deg, transparent, #ffe45e 20%, #ff8a3d 55%, #ff2f4a 100%);
+  .tongues.side-r b { background: linear-gradient(270deg, transparent, var(--fl5) 20%, var(--fl4) 55%, var(--fl2) 100%);
     clip-path: polygon(100% 50%, 70% 20%, 55% 35%, 0 0, 0 100%, 55% 65%, 70% 80%); transform-origin: 0 50%; }
   @keyframes lick { 0% { transform: scaleY(.5) skewX(-8deg); } 100% { transform: scaleY(1.1) skewX(8deg); } }
   @keyframes licks { 0% { transform: scaleX(.45); } 100% { transform: scaleX(1.05); } }
   /* Funken, die nach oben fliegen */
   .sparks { position: absolute; left: 0; right: 0; top: 0; height: 0; z-index: 5; }
-  .sparks s { position: absolute; top: 0; width: 6px; height: 6px; background: #ffe45e; box-shadow: 0 0 6px #ff8a3d;
+  .sparks s { position: absolute; top: 0; width: 6px; height: 6px; background: var(--fl5); box-shadow: 0 0 6px var(--fl4);
     animation: spark 1.6s ease-out infinite; opacity: 0; will-change: transform, opacity; }
-  .sparks s:nth-child(3n) { background: #fff; width: 4px; height: 4px; }
-  .sparks s:nth-child(4n) { background: #ff6a2a; }
+  .sparks s:nth-child(3n) { background: var(--fl6); width: 4px; height: 4px; }
+  .sparks s:nth-child(4n) { background: var(--fl3); }
   @keyframes spark { 0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; } 10% { opacity: 1; }
     100% { transform: translate3d(var(--dx, 0), -170px, 0) scale(.3) rotate(180deg); opacity: 0; } }
   /* Große Feuer-Boxen: noch mehr */
   .box.s3.fire .tongues, .box.s4.fire .tongues { top: -110px; height: 124px; }
   .box.s3.fire .tongues.back, .box.s4.fire .tongues.back { top: -142px; height: 156px; }
   .box.s4.fire .tongues b { animation-duration: .32s; }
-  .box.s4.fire .heat { box-shadow: 0 0 80px 30px rgba(255, 70, 20, .7); }
+  .box.s4.fire .heat { box-shadow: 0 0 80px 30px var(--heat3); }
+
+  /* ============ BOXEN IM DESIGN "ARCADE": Automaten-Leuchttafeln ============ */
+  [data-theme="arcade"] .face { background: #000; border-radius: 2px; padding: 8px; color: var(--a1);
+    box-shadow: 0 0 0 4px var(--a1), 0 0 0 8px #000, 0 0 0 11px var(--a2), 0 0 26px var(--a1); }
+  [data-theme="arcade"] .face::before, [data-theme="arcade"] .notch, [data-theme="arcade"] .label::before { display: none; }
+  [data-theme="arcade"] .label { background: repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 2px, transparent 2px 4px); box-shadow: none; padding: 18px 12px 6px; border-radius: 0; }
+  [data-theme="arcade"] .label .tag { color: #fff; opacity: .9; }
+  [data-theme="arcade"] .label .title { font-family: var(--pixel); font-size: calc(var(--fs, 34px) * .52); line-height: 1.3; color: var(--a1); text-shadow: 3px 3px 0 var(--a3); }
+  [data-theme="arcade"] .label .artist { color: #fff; opacity: .75; font-size: calc(var(--fs, 34px) * .62); margin-top: 6px; }
+  [data-theme="arcade"] .th0 { --a1: #ffe14d; --a2: #ff3b5c; --a3: #8a1f00; }
+  [data-theme="arcade"] .th1 { --a1: #3bd5ff; --a2: #3b5bff; --a3: #0b1a6e; }
+  [data-theme="arcade"] .th2 { --a1: #ff3b5c; --a2: #ffe14d; --a3: #5a0018; }
+  [data-theme="arcade"] .th3 { --a1: #4dff6a; --a2: #3b5bff; --a3: #0a4a16; }
+  [data-theme="arcade"] .th4 { --a1: #ff6ae0; --a2: #3bd5ff; --a3: #5a0a4a; }
+  [data-theme="arcade"] .th5 { --a1: #ff9d2e; --a2: #ffe14d; --a3: #6a2a00; }
+  [data-theme="arcade"] .th6 { --a1: #ffffff; --a2: #ff3b5c; --a3: #3b5bff; }
+  [data-theme="arcade"] .th7 { --a1: #b48cff; --a2: #4dff6a; --a3: #2a0a6e; }
+  [data-theme="arcade"] .box.fire .face { box-shadow: 0 0 0 4px #ff9d2e, 0 0 0 8px #000, 0 0 0 11px #ff3b5c, 0 0 30px #ff6a2a; }
+
+  /* ============ BOXEN IM DESIGN "VAPORWAVE": Retro-Fenster ============ */
+  [data-theme="vapor"] .face { background: #c0c0c0; border-radius: 0; padding: 30px 6px 6px; color: var(--vink);
+    box-shadow: inset -2px -2px 0 #404040, inset 2px 2px 0 #fff, inset -4px -4px 0 #808080, inset 4px 4px 0 #dfdfdf, 7px 7px 0 rgba(26,15,51,.5); }
+  [data-theme="vapor"] .face::before { top: 5px; left: 5px; right: 5px; height: 21px; border-radius: 0; background: linear-gradient(90deg, var(--bar1), var(--bar2)); }
+  [data-theme="vapor"] .notch.l { display: none; }
+  [data-theme="vapor"] .notch.r { top: 7px; bottom: auto; right: 9px; width: auto; height: auto; background: none; z-index: 4; }
+  [data-theme="vapor"] .notch.r::after { content: "_ □ ×"; color: #fff; font-family: var(--term); font-size: 18px; letter-spacing: 3px; }
+  [data-theme="vapor"] .label { position: static; background: var(--paper); border-radius: 0; padding: 8px 12px; box-shadow: inset 2px 2px 0 #808080, inset -2px -2px 0 #fff; }
+  [data-theme="vapor"] .label::before { display: none; }
+  [data-theme="vapor"] .label .tag { top: 10px; left: 12px; color: #fff; opacity: 1; z-index: 5; }
+  [data-theme="vapor"] .label .tag::after { content: ".MP3"; }
+  [data-theme="vapor"] .box.s3 .label .tag, [data-theme="vapor"] .box.s4 .label .tag { top: 11px; left: 12px; font-size: 9px; }
+  [data-theme="vapor"] .box.s3 .face, [data-theme="vapor"] .box.s4 .face { padding: 32px 8px 8px; }
+  [data-theme="vapor"] .box.s3 .face::before, [data-theme="vapor"] .box.s4 .face::before { top: 5px; height: 23px; }
+  [data-theme="vapor"] .label .title { color: var(--vink); }
+  [data-theme="vapor"] .th0 { --bar1: #000080; --bar2: #1084d0; --paper: #fff; --vink: #000080; }
+  [data-theme="vapor"] .th1 { --bar1: #ff71ce; --bar2: #b967ff; --paper: #fff0fa; --vink: #5a1a6e; }
+  [data-theme="vapor"] .th2 { --bar1: #01cdfe; --bar2: #05ffa1; --paper: #effffa; --vink: #00506a; }
+  [data-theme="vapor"] .th3 { --bar1: #b967ff; --bar2: #01cdfe; --paper: #fffde0; --vink: #3a1a7a; }
+  [data-theme="vapor"] .th4 { --bar1: #ff71ce; --bar2: #fffb96; --paper: #fff; --vink: #b0006a; }
+  [data-theme="vapor"] .th5 { --bar1: #241446; --bar2: #b967ff; --paper: #f3ecff; --vink: #241446; }
+  [data-theme="vapor"] .th6 { --bar1: #008080; --bar2: #05ffa1; --paper: #fff; --vink: #005050; }
+  [data-theme="vapor"] .th7 { --bar1: #1084d0; --bar2: #ff71ce; --paper: #fff8e8; --vink: #000080; }
+  [data-theme="vapor"] .box.fire .face { --bar1: #b0002a; --bar2: #ff9d3d; }
+
+  /* ============ BOXEN IM DESIGN "POCKET 8-BIT": RPG-Dialogfenster ============ */
+  [data-theme="gameboy"] .face { background: var(--gb-bg); border-radius: 10px; padding: 7px; color: var(--gb-ink);
+    box-shadow: inset 0 0 0 4px var(--gb-ink), inset 0 0 0 7px var(--gb-bg), inset 0 0 0 9px var(--gb-mid), 6px 6px 0 #071d07; }
+  [data-theme="gameboy"] .face::before, [data-theme="gameboy"] .notch.l, [data-theme="gameboy"] .label::before { display: none; }
+  [data-theme="gameboy"] .notch.r { width: auto; height: auto; background: none; right: 16px; bottom: 10px; z-index: 4; }
+  [data-theme="gameboy"] .notch.r::after { content: "▼"; color: var(--gb-ink); font-size: 14px; animation: blink .9s steps(1) infinite; }
+  [data-theme="gameboy"] .label { background: transparent; box-shadow: none; padding: 18px 16px 10px; }
+  [data-theme="gameboy"] .label .title { color: var(--gb-ink); }
+  [data-theme="gameboy"] .label .tag { color: var(--gb-ink); }
+  [data-theme="gameboy"] .th0, [data-theme="gameboy"] .th3, [data-theme="gameboy"] .th5, [data-theme="gameboy"] .th6 { --gb-bg: #9bbc0f; --gb-mid: #306230; --gb-ink: #0f380f; }
+  [data-theme="gameboy"] .th1, [data-theme="gameboy"] .th4 { --gb-bg: #8bac0f; --gb-mid: #306230; --gb-ink: #0f380f; }
+  [data-theme="gameboy"] .th2, [data-theme="gameboy"] .th7 { --gb-bg: #306230; --gb-mid: #8bac0f; --gb-ink: #9bbc0f; }
+  [data-theme="gameboy"] .coin { color: #0f380f; text-shadow: none; background: radial-gradient(circle at 35% 30%, #c4dc5a 0 18%, #9bbc0f 45%, #8bac0f 100%); border-color: #0f380f; box-shadow: 0 4px 0 #071d07; }
+  [data-theme="gameboy"] .rays { background: repeating-conic-gradient(from 0deg, rgba(155,188,15,.9) 0 10deg, transparent 10deg 30deg); }
+  [data-theme="gameboy"] .box.fire .coin { color: #9bbc0f; background: radial-gradient(circle at 35% 30%, #306230 0 30%, #0f380f 100%); border-color: #9bbc0f; box-shadow: 0 4px 0 #071d07, 0 0 18px rgba(155,188,15,.8); }
+  [data-theme="gameboy"] .box.fire .rays { background: repeating-conic-gradient(from 0deg, #9bbc0f 0 12deg, #306230 12deg 18deg, transparent 18deg 30deg); }
+  [data-theme="gameboy"] .plusone { color: #9bbc0f; text-shadow: 2px 2px 0 #0f380f; }
 
   /* Gespielt-Bestätigung */
   .confirm { position: absolute; inset: 0; z-index: 8; border-radius: inherit; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
@@ -192,22 +262,88 @@
   .confirm .no { background: #4a2a7a; color: #fff; box-shadow: 0 4px 0 #24123f; }
 
   /* ---------- Seitenleiste ---------- */
-  .side { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
-  .qrbox { padding: 20px 18px 18px; text-align: center; }
-  .qrbox .scan { font-family: var(--pixel); font-size: 16px; letter-spacing: 2px; margin-bottom: 14px; }
-  .qr { background: #fff; padding: 12px; display: inline-block; line-height: 0; box-shadow: 6px 6px 0 var(--pink); }
-  .qr svg, .qr img { width: 220px; height: 220px; image-rendering: pixelated; }
-  .qrbox .cta { font-family: var(--pixel); font-size: 10px; line-height: 1.7; margin-top: 18px; }
-  .qrbox .url { font-size: 19px; color: #c7b5ef; margin-top: 10px; word-break: break-all; line-height: 1; }
-  .stats { padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-  .stats .n { font-family: var(--pixel); font-size: 24px; }
-  .stats .l { font-family: var(--pixel); font-size: 8px; color: #b9a8dd; margin-top: 8px; letter-spacing: 1px; }
-  .ctrl { margin-top: auto; display: grid; gap: 10px; opacity: .35; transition: opacity .3s; }
-  .ctrl:hover { opacity: 1; }
-  .ctrl .help { font-size: 18px; color: #b9a8dd; text-align: center; line-height: 1; }
-  .ctrl button { font-family: var(--pixel); font-size: 10px; letter-spacing: 1px; padding: 11px; border: 2px solid var(--purple); background: rgba(17,4,40,.9); color: #fff; cursor: pointer; }
-  .ctrl button:hover { border-color: var(--cyan); }
-  .ctrl button.danger.armed { background: var(--hot); border-color: #fff; }
+  .side { position: relative; display: flex; flex-direction: column; gap: 22px; min-height: 0; }
+  .qrbox { padding: 16px 16px 14px; text-align: center; flex: none; }
+  .qrbox .scan { font-family: var(--pixel); font-size: 15px; letter-spacing: 2px; margin-bottom: 12px; }
+  .qr { background: #fff; padding: 10px; display: inline-block; line-height: 0; box-shadow: 6px 6px 0 var(--pink); }
+  .qr svg, .qr img { width: 184px; height: 184px; image-rendering: pixelated; }
+  .qrbox .cta { font-family: var(--pixel); font-size: 9px; line-height: 1.7; margin-top: 14px; }
+  .qrbox .url { font-size: 18px; opacity: .8; margin-top: 6px; word-break: break-all; line-height: 1; }
+  .qrbox .stat { font-family: var(--pixel); font-size: 8px; letter-spacing: 1px; margin-top: 10px; opacity: .85; }
+  .qrbox .stat b { font-size: 12px; font-weight: normal; }
+
+  /* ---------- Rangliste "Meistgespielt" ----------
+     Bewusst KEIN Spielmodul-Look: offene Highscore-Tafel */
+  .rank { flex: 1; min-height: 120px; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 46px;
+    padding: 14px 6px 10px; border-top: 3px double var(--yellow); border-bottom: 3px double var(--yellow);
+    background: linear-gradient(180deg, rgba(255,228,94,.10), rgba(7,1,26,.55) 30%, rgba(7,1,26,.55)); }
+  .rank-head { text-align: center; margin-bottom: 10px; }
+  .rank-title { display: block; font-family: var(--pixel); font-size: 13px; letter-spacing: 2px; color: var(--yellow);
+    text-shadow: 2px 2px 0 #7a3d00, 0 0 12px rgba(255,228,94,.5); }
+  .rank-sub { display: block; font-family: var(--pixel); font-size: 7px; letter-spacing: 2px; margin-top: 7px; color: var(--cyan); opacity: .85; }
+  .rank-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+  .r { display: flex; align-items: center; gap: 8px; padding: 4px 6px; line-height: 1; }
+  .r:nth-child(odd) { background: rgba(255,255,255,.05); }
+  .r .pos { flex: none; width: 34px; font-family: var(--pixel); font-size: 9px; color: var(--cyan); }
+  .r .nm { flex: 1; min-width: 0; font-size: 23px; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r .nm small { display: block; font-size: 15px; opacity: .6; margin-top: 1px; }
+  .r .ct { flex: none; font-family: var(--pixel); font-size: 11px; color: var(--yellow); }
+  .r1 .pos { color: #ffd23f; font-size: 11px; } .r1 .nm { font-size: 27px; color: #ffe9a0; }
+  .r2 .pos { color: #d8dcef; } .r3 .pos { color: #e09a5a; }
+  .r1 .pos::before { content: "♛"; display: block; font-size: 14px; margin-bottom: 2px; }
+  .r.up { animation: rowup 1.4s ease-out; }
+  @keyframes rowup { 0% { transform: translateX(-14px); opacity: .2; } 30% { transform: translateX(4px); opacity: 1; } 100% { transform: none; } }
+  .r.up .ct { animation: blink .25s steps(1) 5; }
+  .rank-empty { text-align: center; font-size: 20px; opacity: .65; padding: 10px 6px; line-height: 1.1; }
+
+  /* ---------- Steuerung: eingeklappt unten rechts ---------- */
+  .ctrl { position: absolute; right: 0; bottom: 0; z-index: 20; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .ctrl .gear { width: 38px; height: 38px; font-size: 20px; line-height: 1; border: 2px solid var(--purple); background: rgba(17,4,40,.85);
+    color: #fff; cursor: pointer; opacity: .45; transition: opacity .2s; padding: 0; }
+  .ctrl:hover .gear, .ctrl:focus-within .gear { opacity: 1; }
+  .ctrl .panel { display: none; flex-direction: column; gap: 8px; width: 300px; padding: 12px; background: rgba(7,1,26,.95); border: 2px solid var(--purple); }
+  .ctrl:hover .panel, .ctrl:focus-within .panel { display: flex; }
+  .ctrl .help { font-size: 18px; color: #c7b5ef; text-align: center; line-height: 1; }
+  .ctrl .panel button { font-family: var(--pixel); font-size: 9px; letter-spacing: 1px; padding: 10px; border: 2px solid var(--purple); background: #1a0638; color: #fff; cursor: pointer; text-align: left; }
+  .ctrl .panel button:hover { border-color: var(--cyan); }
+  .ctrl .panel button.armed { background: var(--hot); border-color: #fff; }
+
+  /* ---------- Rangliste & Steuerung in den anderen Designs ---------- */
+  [data-theme="arcade"] .rank { background: #000; border: 4px solid #ff3b5c; border-radius: 4px; box-shadow: inset 0 0 0 4px #000, inset 0 0 0 6px #3b5bff; padding: 16px 12px; }
+  [data-theme="arcade"] .rank-title { color: #ff3b5c; text-shadow: 3px 3px 0 #5a0018; }
+  [data-theme="arcade"] .rank-sub { color: #fff; }
+  [data-theme="arcade"] .r { background: none !important; }
+  [data-theme="arcade"] .r .nm { font-family: var(--pixel); font-size: 10px; line-height: 1.3; }
+  [data-theme="arcade"] .r .nm small { font-family: var(--term); font-size: 15px; }
+  [data-theme="arcade"] .r1 .nm { font-size: 12px; }
+  [data-theme="arcade"] .r .pos::before { content: none; }
+  [data-theme="arcade"] .r:nth-child(1) * { color: #ffe14d; } [data-theme="arcade"] .r:nth-child(2) * { color: #3bd5ff; }
+  [data-theme="arcade"] .r:nth-child(3) * { color: #ff3b5c; } [data-theme="arcade"] .r:nth-child(4) * { color: #4dff6a; }
+  [data-theme="arcade"] .r:nth-child(5) * { color: #ff9d2e; } [data-theme="arcade"] .r:nth-child(n+6) * { color: #c9c9ff; }
+
+  [data-theme="vapor"] .rank { background: #c0c0c0; color: #1a0f33; border: 0; padding: 34px 8px 8px; position: relative;
+    box-shadow: inset -2px -2px 0 #404040, inset 2px 2px 0 #fff, inset -4px -4px 0 #808080, inset 4px 4px 0 #dfdfdf, 8px 8px 0 rgba(26,15,51,.55); }
+  [data-theme="vapor"] .rank::before { content: "♫ TOP_HITS.TXT"; position: absolute; top: 5px; left: 5px; right: 5px; height: 22px; line-height: 22px; padding-left: 8px;
+    background: linear-gradient(90deg, #ff71ce, #b967ff); color: #fff; font-family: var(--pixel); font-size: 9px; }
+  [data-theme="vapor"] .rank-head { background: #fff; margin: 0 0 6px; padding: 8px 4px; box-shadow: inset 2px 2px 0 #808080; }
+  [data-theme="vapor"] .rank-title { color: #000080; text-shadow: none; font-size: 11px; }
+  [data-theme="vapor"] .rank-sub { color: #b967ff; }
+  [data-theme="vapor"] .rank-list { background: #fff; box-shadow: inset 2px 2px 0 #808080; padding: 4px; flex: 1; }
+  [data-theme="vapor"] .r:nth-child(odd) { background: #f2e9ff; }
+  [data-theme="vapor"] .r .nm { color: #1a0f33; } [data-theme="vapor"] .r1 .nm { color: #000080; }
+  [data-theme="vapor"] .r .pos { color: #b967ff; } [data-theme="vapor"] .r1 .pos { color: #ff3fb8; }
+  [data-theme="vapor"] .r .ct { color: #000080; }
+  [data-theme="vapor"] .rank-empty { color: #1a0f33; }
+
+  [data-theme="gameboy"] .rank { background: #9bbc0f; color: #0f380f; border: 4px solid #0f380f; border-radius: 10px; padding: 16px 10px 10px;
+    box-shadow: inset 0 0 0 3px #9bbc0f, inset 0 0 0 6px #306230, 6px 6px 0 #071d07; }
+  [data-theme="gameboy"] .rank-title, [data-theme="gameboy"] .rank-sub { color: #0f380f; text-shadow: none; }
+  [data-theme="gameboy"] .r { background: none !important; }
+  [data-theme="gameboy"] .r .nm, [data-theme="gameboy"] .r .ct { color: #0f380f; }
+  [data-theme="gameboy"] .r .pos { color: #306230; }
+  [data-theme="gameboy"] .r1 .pos::before { content: "▶"; animation: blink .8s steps(1) infinite; }
+  [data-theme="gameboy"] .r1 .pos { color: #0f380f; }
+  [data-theme="gameboy"] .rank-empty { color: #0f380f; }
 
   @media (max-width: 900px) {
     body { overflow: auto; height: auto; }
@@ -220,7 +356,7 @@
 </head>
 <body>
 <div class="scene"><div class="stars"></div><div class="sun"></div><div class="horizon"></div><div class="grid"></div></div>
-<div class="scanlines"></div><div class="vignette"></div>
+<div class="crt"></div>
 
 <div class="wrap">
   <section class="stage">
@@ -240,25 +376,30 @@
     <div class="qrbox pixel-box">
       <div class="scan neon-y">SCAN ME!</div>
       <div class="qr" id="qr"></div>
-      <div class="cta neon-c">SONG WÜNSCHEN<br>OHNE ANMELDUNG</div>
+      <div class="cta neon-c">SONG WÜNSCHEN · OHNE ANMELDUNG</div>
       <div class="url" id="url"></div>
+      <div class="stat neon-p"><b id="nReq">0</b> WÜNSCHE · <b id="nSongs">0</b> SONGS</div>
     </div>
-    <div class="stats pixel-box">
-      <div><div class="n neon-p" id="nReq">0</div><div class="l">WÜNSCHE</div></div>
-      <div><div class="n neon-c" id="nSongs">0</div><div class="l">SONGS</div></div>
-    </div>
-    <div class="ctrl">
-      <div class="help">Box anklicken = als gespielt entfernen</div>
-      <button id="fs" type="button">⛶ VOLLBILD</button>
-      <button id="reset" class="danger" type="button">↺ ALLES LÖSCHEN</button>
+    <section class="rank" id="rank">
+      <div class="rank-head"><span class="rank-title">🏆 MEISTGESPIELT</span><span class="rank-sub">SO OFT HEUTE GESPIELT</span></div>
+      <ol class="rank-list" id="rankList"></ol>
+    </section>
+    <div class="ctrl" id="ctrl">
+      <div class="panel">
+        <div class="help">Box anklicken = als gespielt abhaken</div>
+        <button id="fs" type="button">⛶ VOLLBILD</button>
+        <button id="fx" type="button">⚡ EFFEKTE: AUTO</button>
+        <button id="resetRank" type="button">🏆 RANGLISTE LÖSCHEN</button>
+        <button id="reset" type="button">↺ ALLE WÜNSCHE LÖSCHEN</button>
+      </div>
+      <button class="gear" type="button" aria-label="Einstellungen">⚙</button>
     </div>
   </aside>
 </div>
 
-<script src="config.js"></script>
 <script src="qrcode.js"></script>
 <script type="module">
-import { config, initBackend, clusterRequests, hash, esc } from "./app.js";
+import { config, initBackend, clusterRequests, playedKeyFor, hash, esc } from "./app.js";
 
 const $ = id => document.getElementById(id);
 $("title").textContent = "★ " + config.partyName + " ★";
@@ -273,12 +414,14 @@ try {
   $("qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
 } catch (e) { $("qr").textContent = "QR-Fehler"; }
 
-// ---------- Rendering ----------
+// ---------- Zustand ----------
 const tiles = $("tiles");
-const nodes = new Map();          // cluster-id -> { el, count }
+const nodes = new Map();          // cluster-id -> { el, count, sig }
 let current = [];
+let played = [];
 let backend = null;
 let firstRender = true;
+let layoutSig = "";
 
 function sizeClass(n) {
   if (n >= 8) return "s4";
@@ -315,24 +458,32 @@ function makeBox(c) {
     s.style.animationDuration = (0.9 + (i % 4) * 0.15).toFixed(2) + "s";
     em.appendChild(s);
   }
+  el._q = {                         // Elemente merken statt jedes Mal zu suchen
+    tag: el.querySelector(".tag"), title: el.querySelector(".title"), artist: el.querySelector(".artist"),
+    badge: el.querySelector(".badge"), bn: el.querySelector(".coin .bn"), embers: em, label: el.querySelector(".label")
+  };
   el.addEventListener("click", ev => onBoxClick(el, ev));
   return el;
 }
 
+// Aktualisiert eine Box – fasst das DOM nur an, wenn sich etwas geändert hat
 function updateBox(el, c, rank) {
+  const q = el._q;
   const fire = c.count >= config.flameAt;
-  const theme = "th" + (hash(c.id) % 8);
-  el.className = `box ${theme} ${sizeClass(c.count)}${fire ? " fire" : ""}` +
-    (el.classList.contains("new") ? " new" : "") + (el.classList.contains("bump") ? " bump" : "");
-  el.querySelector(".tag").textContent = (fire ? "🔥 ON FIRE · " : "") + "TRACK " + String(rank).padStart(2, "0");
-  el.querySelector(".title").textContent = c.label;
-  const ar = el.querySelector(".artist");
-  ar.textContent = c.artist || "";
-  ar.hidden = !c.artist;
-  const badge = el.querySelector(".badge");
-  badge.hidden = c.count < 2;
-  el.querySelector(".coin .bn").textContent = c.count;
-  el.querySelector(".embers").hidden = !fire;
+  const cls = `box th${hash(c.id) % 8} ${sizeClass(c.count)}${fire ? " fire" : ""}`;
+  if (el._cls !== cls) {
+    const keep = ["new", "bump", "bye"].filter(k => el.classList.contains(k));
+    el.className = cls + (keep.length ? " " + keep.join(" ") : "");
+    el._cls = cls;
+  }
+  const tag = (fire ? "🔥 ON FIRE · " : "") + "TRACK " + String(rank).padStart(2, "0");
+  if (q.tag.textContent !== tag) q.tag.textContent = tag;
+  if (q.title.textContent !== c.label) q.title.textContent = c.label;
+  const art = c.artist || "";
+  if (q.artist.textContent !== art) { q.artist.textContent = art; q.artist.hidden = !art; el._fit = ""; }
+  q.badge.hidden = c.count < 2;
+  if (q.bn.textContent !== String(c.count)) q.bn.textContent = c.count;
+  q.embers.hidden = !fire;
 }
 
 function render(list) {
@@ -367,42 +518,82 @@ function render(list) {
   const have = Array.from(tiles.children);
   if (want.length !== have.length || want.some((el, i) => el !== have[i])) want.forEach(el => tiles.appendChild(el));
   firstRender = false;
-  fit();
+
+  // Größen nur neu berechnen, wenn sich das Layout geändert hat
+  const sig = list.map(c => c.id + ":" + sizeClass(c.count)).join("|");
+  if (sig !== layoutSig) { layoutSig = sig; fit(); }
+  else fitAll(false);
 }
 
-// Schriftgröße pro Box so anpassen, dass der Titel komplett reinpasst
-function fitText(el) {
-  const face = el.querySelector(".label"), title = el.querySelector(".title");
-  const base = el.classList.contains("s4") ? 74 : el.classList.contains("s3") ? 60 : el.classList.contains("s2") ? 44 : 36;
-  let fs = base;
-  const over = () => face.scrollHeight > face.clientHeight + 1 || title.scrollWidth > title.clientWidth + 1;
-  title.style.setProperty("--fs", fs + "px");
-  el.querySelector(".artist").style.setProperty("--fs", fs + "px");
-  while (over() && fs > 14) {
-    fs -= 2;
-    title.style.setProperty("--fs", fs + "px");
-    el.querySelector(".artist").style.setProperty("--fs", fs + "px");
+// Schriftgröße pro Box (Binärsuche statt Schritt für Schritt)
+function fitText(el, force) {
+  const q = el._q;
+  const s = el.classList.contains("s4") ? 4 : el.classList.contains("s3") ? 3 : el.classList.contains("s2") ? 2 : 1;
+  const sig = s + "|" + q.title.textContent + "|" + q.artist.textContent + "|" + tiles.style.getPropertyValue("--row");
+  if (!force && el._fit === sig) return;
+  el._fit = sig;
+  const base = [0, 36, 44, 60, 74][s];
+  const set = fs => { q.title.style.setProperty("--fs", fs + "px"); q.artist.style.setProperty("--fs", fs + "px"); };
+  const over = () => q.label.scrollHeight > q.label.clientHeight + 1 || q.title.scrollWidth > q.title.clientWidth + 1;
+  const search = () => {
+    set(base);
+    if (!over()) return base;
+    let lo = 12, hi = base;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; set(mid); if (over()) hi = mid; else lo = mid; }
+    set(lo);
+    return lo;
+  };
+  const hasArtist = !!q.artist.textContent;
+  q.artist.hidden = !hasArtist;
+  const withArtist = search();
+  // Wird der Titel wegen des Künstlers zu klein, lieber den Künstler weglassen
+  if (hasArtist && withArtist < base * 0.8) {
+    q.artist.hidden = true;
+    const without = search();
+    if (without < withArtist + 6) { q.artist.hidden = false; search(); }
   }
 }
-function fitAll() { tiles.querySelectorAll(".box").forEach(fitText); }
+function fitAll(force) { for (const n of nodes.values()) fitText(n.el, force); }
 
 // Wenn es zu viele Boxen werden: alles etwas kleiner machen
 function fit() {
   const board = $("board");
-  if (window.innerWidth <= 900) { fitAll(); return; }
+  if (window.innerWidth <= 900) { fitAll(true); return; }
+  const cs = getComputedStyle(board);
+  const avail = board.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 10;
   const steps = [[118, 240], [100, 210], [86, 180], [74, 160], [64, 140]];
   for (const [r, c] of steps) {
     tiles.style.setProperty("--row", r + "px");
     tiles.style.setProperty("--col", c + "px");
-    tiles.style.fontSize = "";
-    const cs = getComputedStyle(board);
-    const avail = board.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 10;
     if (tiles.scrollHeight <= avail) break;
   }
-  fitAll();
+  fitAll(false);
 }
-document.fonts && document.fonts.ready.then(() => fit());
-window.addEventListener("resize", fit);
+document.fonts && document.fonts.ready.then(() => { layoutSig = ""; fit(); fitAll(true); renderRanking(); });
+let rsT = null;
+window.addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { fit(); fitAll(true); renderRanking(); }, 150); });
+
+// ---------- Rangliste "Meistgespielt" ----------
+let lastCounts = new Map();
+let firstRanking = true;
+function renderRanking() {
+  const ol = $("rankList");
+  const top = [...played].filter(p => p.count > 0).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)).slice(0, 10);
+  if (!top.length) {
+    ol.innerHTML = `<li class="rank-empty">Noch nichts gespielt.<br>Hak einen Song ab, dann geht's los!</li>`;
+    return;
+  }
+  const pos = i => ["1ST", "2ND", "3RD"][i] || (i + 1) + "TH";
+  ol.innerHTML = top.map((p, i) => {
+    const up = lastCounts.has(p.key) ? p.count > lastCounts.get(p.key) : !firstRanking;
+    return `<li class="r r${i + 1}${up ? " up" : ""}"><span class="pos">${pos(i)}</span><span class="nm">${esc(p.label)}${p.artist ? `<small>${esc(p.artist)}</small>` : ""}</span><span class="ct">${p.count}×</span></li>`;
+  }).join("");
+  lastCounts = new Map(played.map(p => [p.key, p.count]));
+  firstRanking = false;
+  // So viele Plätze zeigen, wie gut lesbar hineinpassen (max. 10)
+  const panel = $("rank");
+  while (ol.children.length > 3 && panel.scrollHeight > panel.clientHeight + 1) ol.lastElementChild.remove();
+}
 
 // ---------- Gespielt markieren ----------
 function onBoxClick(el, ev) {
@@ -417,29 +608,72 @@ function onBoxClick(el, ev) {
   ov.querySelector(".yes").onclick = e => {
     e.stopPropagation();
     el.classList.add("bye");
-    setTimeout(() => backend && backend.remove(c.ids), 420);
+    const key = playedKeyFor(c.label, played);
+    const ex = played.find(p => p.key === key);
+    // Bestehender Eintrag behält seinen Namen; ein fehlender Künstler wird ergänzt
+    const label = ex ? ex.label : c.label;
+    const artist = ex && ex.artist ? ex.artist : (c.artist || "");
+    setTimeout(() => backend && backend.markPlayed(c, key, label, artist), 420);
   };
   el.querySelector(".face").appendChild(ov);
   setTimeout(() => ov.isConnected && ov.remove(), 6000);
 }
+
+// ---------- Effekte: AUTO / VOLL / SPAR ----------
+const FX_KEY = "songwunsch_fx";
+const fxModes = ["auto", "high", "low"];
+const fxNames = { auto: "AUTO", high: "VOLL", low: "SPARSAM" };
+let fxMode = localStorage.getItem(FX_KEY) || config.effects || "auto";
+if (!fxModes.includes(fxMode)) fxMode = "auto";
+let autoLite = false;
+function applyFx() {
+  const lite = fxMode === "low" || (fxMode === "auto" && autoLite);
+  document.body.classList.toggle("lite", lite);
+  $("fx").textContent = "⚡ EFFEKTE: " + fxNames[fxMode] + (fxMode === "auto" ? (lite ? " (SPARSAM)" : " (VOLL)") : "");
+}
+$("fx").onclick = () => {
+  fxMode = fxModes[(fxModes.indexOf(fxMode) + 1) % fxModes.length];
+  try { localStorage.setItem(FX_KEY, fxMode); } catch {}
+  applyFx();
+};
+// Automatik: misst die Bildrate; ruckelt es dauerhaft, werden Effekte reduziert
+(function watchFps() {
+  let frames = 0, t0 = performance.now(), slow = 0, fast = 0;
+  function tick(t) {
+    frames++;
+    if (t - t0 >= 3000) {
+      const fps = frames * 1000 / (t - t0);
+      frames = 0; t0 = t;
+      if (document.visibilityState === "visible") {
+        if (fps < 40) { slow++; fast = 0; } else if (fps > 57) { fast++; slow = 0; }
+        if (!autoLite && slow >= 2) { autoLite = true; applyFx(); }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+applyFx();
 
 // ---------- Steuerung ----------
 $("fs").onclick = () => {
   if (document.fullscreenElement) document.exitFullscreen();
   else document.documentElement.requestFullscreen?.();
 };
-let armTimer = null;
-$("reset").onclick = () => {
-  const b = $("reset");
-  if (!b.classList.contains("armed")) {
-    b.classList.add("armed"); b.textContent = "SICHER? NOCHMAL KLICKEN";
-    armTimer = setTimeout(() => { b.classList.remove("armed"); b.textContent = "↺ ALLES LÖSCHEN"; }, 3500);
-    return;
-  }
-  clearTimeout(armTimer);
-  b.classList.remove("armed"); b.textContent = "↺ ALLES LÖSCHEN";
-  if (backend) backend.remove(current.flatMap(c => c.ids));
-};
+function armed(btn, label, action) {
+  let t = null;
+  btn.onclick = () => {
+    if (!btn.classList.contains("armed")) {
+      btn.classList.add("armed"); btn.textContent = "SICHER? NOCHMAL KLICKEN";
+      t = setTimeout(() => { btn.classList.remove("armed"); btn.textContent = label; }, 3500);
+      return;
+    }
+    clearTimeout(t); btn.classList.remove("armed"); btn.textContent = label;
+    action();
+  };
+}
+armed($("reset"), "↺ ALLE WÜNSCHE LÖSCHEN", () => backend && backend.remove(current.flatMap(c => c.ids)));
+armed($("resetRank"), "🏆 RANGLISTE LÖSCHEN", () => backend && backend.resetPlayed(played.map(p => p.key)));
 
 // ---------- Start ----------
 try {
@@ -451,6 +685,8 @@ try {
     document.body.appendChild(d);
     document.body.classList.add("demo");
   }
+  // Rangliste zuerst laden, damit "gespielt" sofort den richtigen Eintrag findet
+  backend.subscribePlayed(list => { played = list; renderRanking(); });
   backend.subscribe(reqs => render(clusterRequests(reqs)));
 } catch (e) {
   $("empty").querySelector(".big").textContent = "KEINE VERBINDUNG – config.js prüfen";

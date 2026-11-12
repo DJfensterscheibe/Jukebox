@@ -12,6 +12,13 @@ window.SONGWUNSCH_CONFIG = {
   // Ab so vielen Wünschen bekommt eine Box die Flammen-Animation
   flameAt: 5,
 
+  // Design: "synthwave" (Standard), "arcade", "vapor" oder "gameboy"
+  theme: "synthwave",
+
+  // Effekte auf dem Host-Bildschirm: "auto" (reduziert bei Ruckeln von selbst),
+  // "high" (immer alles) oder "low" (immer sparsam)
+  effects: "auto",
+
   // ----------------------------------------------------------
   //  Firebase-Zugangsdaten (siehe ANLEITUNG.md, Schritt 1)
   //  Solange databaseURL leer ist, läuft die App im DEMO-MODUS:

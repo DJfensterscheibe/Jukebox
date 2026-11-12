@@ -64,6 +64,11 @@ body {
 @keyframes gridmove { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 60px, 0); } }
 .horizon { position: absolute; left: 0; right: 0; top: 56%; height: 2px; background: var(--cyan);
   box-shadow: 0 0 18px 4px var(--cyan); }
+/* Röhren-Look: Streifen + dunkle Ecken in EINER Ebene (spart Rechenleistung) */
+.crt { position: fixed; inset: 0; z-index: 50; pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.55) 100%); }
 .scanlines { position: fixed; inset: 0; z-index: 50; pointer-events: none;
   background: repeating-linear-gradient(180deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px); }
 .vignette { position: fixed; inset: 0; z-index: 49; pointer-events: none;
@@ -99,3 +104,137 @@ body.demo { padding-top: 26px; }
 @media (prefers-reduced-motion: reduce) {
   .grid::before, .stars { animation: none; }
 }
+
+/* ============================================================
+   SPAR-MODUS (body.lite): weniger gleichzeitige Animationen
+   ============================================================ */
+body.lite .grid::before, body.lite .stars { animation: none !important; }
+body.lite .tongues.back, body.lite .tongues.side-l, body.lite .tongues.side-r, body.lite .sparks { display: none !important; }
+body.lite .rays { animation: none !important; }
+body.lite .coin::after { display: none; }
+body.lite .embers i:nth-child(n+5) { display: none; }
+body.lite .heat { animation: none !important; opacity: .8; }
+body.lite .coin { animation-duration: 3s !important; }
+
+/* ============================================================
+   DESIGN 2: ARCADE  (data-theme="arcade")
+   ============================================================ */
+[data-theme="arcade"] { --bg0: #000; --pink: #ff3b5c; --cyan: #3bd5ff; --yellow: #ffe14d; --purple: #3b5bff; --green: #4dff6a; --orange: #ff9d2e; --white: #f2f2ff; }
+[data-theme="arcade"] .scene { background: radial-gradient(ellipse at 50% 115%, #131c5c 0%, #06081f 50%, #000 100%); }
+[data-theme="arcade"] .sun, [data-theme="arcade"] .grid { display: none; }
+[data-theme="arcade"] .horizon { top: auto; bottom: 0; height: 90px; background:
+    linear-gradient(90deg, #3b5bff 0 25%, transparent 25% 50%, #3b5bff 50% 75%, transparent 75%) 0 0 / 32px 6px repeat-x,
+    linear-gradient(180deg, transparent 6px, #0a0f3a 6px); box-shadow: none; opacity: .9; }
+/* Sternenfeld zieht langsam nach unten (nur transform = GPU) */
+[data-theme="arcade"] .stars { inset: -360px 0 0 0; animation: starfall 24s linear infinite;
+  background-image:
+    linear-gradient(#fff, #fff), linear-gradient(#ffe14d, #ffe14d), linear-gradient(#3bd5ff, #3bd5ff),
+    linear-gradient(#fff, #fff), linear-gradient(#ff3b5c, #ff3b5c), linear-gradient(#fff, #fff);
+  background-size: 3px 3px; background-repeat: no-repeat;
+  background-position: 12% 8%, 34% 22%, 58% 12%, 76% 30%, 88% 6%, 46% 40%; }
+[data-theme="arcade"] .stars::before, [data-theme="arcade"] .stars::after { content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(#fff 1.2px, transparent 1.5px); background-size: 90px 90px; opacity: .5; }
+[data-theme="arcade"] .stars::after { background-size: 150px 150px; background-position: 40px 70px; opacity: .8; }
+@keyframes starfall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 360px, 0); } }
+[data-theme="arcade"] .chrome { background: none; color: #ffe14d; -webkit-text-fill-color: #ffe14d; filter: none;
+  text-shadow: 4px 4px 0 #ff3b5c, 8px 8px 0 #3b5bff; }
+[data-theme="arcade"] .pixel-box { background: #000; border: 4px solid #3b5bff;
+  box-shadow: inset 0 0 0 4px #000, inset 0 0 0 7px #ff3b5c; clip-path: none; border-radius: 4px; }
+[data-theme="arcade"] .neon-c { color: #3bd5ff; text-shadow: 3px 3px 0 #10208a; }
+[data-theme="arcade"] .neon-p { color: #ff3b5c; text-shadow: 3px 3px 0 #5a0018; }
+[data-theme="arcade"] .neon-y { color: #ffe14d; text-shadow: 3px 3px 0 #a3400f; }
+/* Gäste-Seite */
+[data-theme="arcade"] .card input { background: #000; border-color: #3b5bff; color: #ffe14d; }
+[data-theme="arcade"] .card .hint { border-color: #4dff6a; background: rgba(77,255,106,.06); }
+[data-theme="arcade"] .card .hint .ico, [data-theme="arcade"] .card .hint b { color: #4dff6a; }
+[data-theme="arcade"] .list .item { background: #000; border: 3px solid #3b5bff; }
+[data-theme="arcade"] .list .item .rank { color: #ffe14d; }
+[data-theme="arcade"] .list .plus { background: #ff3b5c; color: #fff; box-shadow: 0 3px 0 #7a0018; }
+
+/* ============================================================
+   DESIGN 3: VAPORWAVE OS  (data-theme="vapor")
+   ============================================================ */
+[data-theme="vapor"] { --bg0: #241446; --pink: #ff71ce; --cyan: #01cdfe; --yellow: #fffb96; --purple: #b967ff; --green: #05ffa1; --white: #fff; }
+[data-theme="vapor"] .scene { background: linear-gradient(180deg, #ffb3ec 0%, #d39cf5 30%, #8fd8f8 56%, #2a1752 56.2%, #1a0f33 100%); }
+[data-theme="vapor"] .stars { display: none; }
+[data-theme="vapor"] .sun { background: linear-gradient(180deg, #fffb96 0%, #ffcf9c 35%, #ff71ce 80%); box-shadow: 0 0 90px 20px rgba(255, 255, 255, .45); }
+[data-theme="vapor"] .sun::after { background: repeating-linear-gradient(180deg, transparent 0 9px, #c49af0 9px 13px, transparent 13px 18px, #b48df0 18px 24px); }
+[data-theme="vapor"] .horizon { background: #fff; box-shadow: 0 0 16px 4px #01cdfe; }
+[data-theme="vapor"] .grid::before { background-image:
+    conic-gradient(rgba(255,113,206,.55) 25%, transparent 0 50%, rgba(255,113,206,.55) 0 75%, transparent 0);
+  background-size: 120px 120px; background-position: 0 0; top: -120px; animation-duration: 2.4s; animation-name: checkmove; }
+@keyframes checkmove { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 120px, 0); } }
+[data-theme="vapor"] .chrome { background: linear-gradient(180deg, #fff 0%, #fffb96 40%, #ff71ce 58%, #b967ff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(4px 4px 0 #01cdfe) drop-shadow(8px 8px 0 #241446); }
+[data-theme="vapor"] .crt { background: radial-gradient(ellipse at center, transparent 65%, rgba(36,20,70,.45) 100%); }
+/* Fenster im Retro-Betriebssystem-Look */
+[data-theme="vapor"] .pixel-box { background: #c0c0c0; color: #1a0f33; border: 0; clip-path: none; padding-top: 34px !important;
+  box-shadow: inset -2px -2px 0 #404040, inset 2px 2px 0 #fff, inset -4px -4px 0 #808080, inset 4px 4px 0 #dfdfdf, 8px 8px 0 rgba(26,15,51,.55); }
+[data-theme="vapor"] .pixel-box::before { content: "◆ JUKEBOX.EXE"; position: absolute; top: 5px; left: 5px; right: 5px; height: 22px;
+  background: linear-gradient(90deg, #000080, #1084d0); color: #fff; font-family: var(--pixel); font-size: 9px; line-height: 22px; padding-left: 8px; text-align: left; }
+[data-theme="vapor"] .pixel-box::after { content: "_ □ ×"; position: absolute; top: 8px; right: 10px; color: #fff; font-family: var(--term); font-size: 18px; line-height: 16px; letter-spacing: 3px; }
+[data-theme="vapor"] .pixel-box .neon-c, [data-theme="vapor"] .pixel-box .neon-p, [data-theme="vapor"] .pixel-box .neon-y { color: #000080; text-shadow: none; }
+[data-theme="vapor"] .neon-c { color: #fff; text-shadow: 2px 2px 0 #b967ff; }
+[data-theme="vapor"] .neon-p { color: #fff; text-shadow: 2px 2px 0 #ff71ce; }
+[data-theme="vapor"] .neon-y { color: #fffb96; text-shadow: 2px 2px 0 #241446; }
+/* Gäste-Seite */
+[data-theme="vapor"] .card input { background: #fff; color: #000080; border: 0; box-shadow: inset 2px 2px 0 #808080, inset -2px -2px 0 #fff, inset 3px 3px 0 #404040; }
+[data-theme="vapor"] .card input::placeholder { color: #8a84a8; }
+[data-theme="vapor"] .card .counter { color: #555; }
+[data-theme="vapor"] .card .hint { border: 2px dashed #000080; background: #fffbd0; color: #1a0f33; }
+[data-theme="vapor"] .card .hint .ico, [data-theme="vapor"] .card .hint b { color: #000080; }
+[data-theme="vapor"] .card .btn { background: #c0c0c0; color: #000; box-shadow: inset -2px -2px 0 #404040, inset 2px 2px 0 #fff, inset -4px -4px 0 #808080; }
+[data-theme="vapor"] .card .btn:disabled { color: #808080; }
+[data-theme="vapor"] .card .cool-txt { color: #000080; }
+[data-theme="vapor"] .card .bar { border-color: #000080; }
+[data-theme="vapor"] .card .bar > div { background: repeating-linear-gradient(90deg, #000080 0 8px, transparent 8px 10px); }
+[data-theme="vapor"] .card .msg.ok { color: #006b3c; text-shadow: none; }
+[data-theme="vapor"] .h2sub { color: #fff; text-shadow: 1px 1px 0 #241446; }
+[data-theme="vapor"] .list .item { background: #fff; color: #1a0f33; border: 0; box-shadow: inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf, 4px 4px 0 rgba(26,15,51,.4); }
+[data-theme="vapor"] .list .item .rank { color: #b967ff; }
+[data-theme="vapor"] .list .item .art { color: #6a5f8f; }
+[data-theme="vapor"] .list .item .cnt { color: #000080; }
+[data-theme="vapor"] .list .plus { background: #c0c0c0; color: #000; box-shadow: inset -2px -2px 0 #404040, inset 2px 2px 0 #fff; }
+[data-theme="vapor"] .empty { color: #fff; }
+[data-theme="vapor"] footer { color: #fff; }
+
+/* ============================================================
+   DESIGN 4: POCKET 8-BIT  (data-theme="gameboy")
+   ============================================================ */
+[data-theme="gameboy"] { --bg0: #0f380f; --pink: #306230; --cyan: #8bac0f; --yellow: #9bbc0f; --purple: #306230; --green: #9bbc0f; --orange: #8bac0f; --white: #9bbc0f; --hot: #0f380f; }
+[data-theme="gameboy"] body { -webkit-font-smoothing: none; }
+[data-theme="gameboy"] .scene { background: linear-gradient(180deg, #0f380f 0%, #1b4a1b 55%, #0f380f 56%, #0f380f 100%); }
+[data-theme="gameboy"] .stars { display: none; }
+[data-theme="gameboy"] .sun { background: #8bac0f; box-shadow: 0 0 0 10px #306230, 0 0 0 20px #1b4a1b; }
+[data-theme="gameboy"] .sun::after { background: repeating-linear-gradient(180deg, transparent 0 9px, #1b4a1b 9px 13px, transparent 13px 18px, #1b4a1b 18px 24px); }
+[data-theme="gameboy"] .horizon { background: #8bac0f; box-shadow: none; height: 4px; }
+[data-theme="gameboy"] .grid::before { background-image: linear-gradient(#306230 3px, transparent 3px), linear-gradient(90deg, #306230 3px, transparent 3px);
+  background-position: 0 0; animation-timing-function: steps(6); }
+/* LCD-Pixelraster statt Röhrenstreifen */
+[data-theme="gameboy"] .crt { background:
+    linear-gradient(90deg, rgba(15,56,15,.18) 1px, transparent 1px) 0 0 / 4px 4px,
+    linear-gradient(rgba(15,56,15,.18) 1px, transparent 1px) 0 0 / 4px 4px; }
+[data-theme="gameboy"] .chrome { background: none; color: #9bbc0f; -webkit-text-fill-color: #9bbc0f; filter: none; text-shadow: 4px 4px 0 #306230; }
+[data-theme="gameboy"] .pixel-box { background: #9bbc0f; color: #0f380f; border: 4px solid #0f380f; clip-path: none; border-radius: 10px;
+  box-shadow: inset 0 0 0 3px #9bbc0f, inset 0 0 0 6px #306230, 6px 6px 0 #071d07; }
+[data-theme="gameboy"] .pixel-box .neon-c, [data-theme="gameboy"] .pixel-box .neon-p, [data-theme="gameboy"] .pixel-box .neon-y { color: #0f380f; text-shadow: none; }
+[data-theme="gameboy"] .neon-c, [data-theme="gameboy"] .neon-p, [data-theme="gameboy"] .neon-y { color: #9bbc0f; text-shadow: 3px 3px 0 #306230; }
+[data-theme="gameboy"] .demo-banner { background: #9bbc0f; color: #0f380f; }
+/* Gäste-Seite */
+[data-theme="gameboy"] .card input { background: #0f380f; color: #9bbc0f; border-color: #306230; caret-color: #9bbc0f; }
+[data-theme="gameboy"] .card input::placeholder { color: #4f7a2a; }
+[data-theme="gameboy"] .card .counter { color: #306230; }
+[data-theme="gameboy"] .card .hint { border-color: #0f380f; background: #8bac0f; color: #0f380f; }
+[data-theme="gameboy"] .card .hint .ico, [data-theme="gameboy"] .card .hint b { color: #0f380f; }
+[data-theme="gameboy"] .card .btn { background: #0f380f; color: #9bbc0f; box-shadow: 0 6px 0 #071d07; }
+[data-theme="gameboy"] .card .btn:disabled { background: #306230; color: #8bac0f; box-shadow: 0 6px 0 #1b4a1b; }
+[data-theme="gameboy"] .card .cool-txt { color: #0f380f; }
+[data-theme="gameboy"] .card .bar { border-color: #0f380f; }
+[data-theme="gameboy"] .card .bar > div { background: repeating-linear-gradient(90deg, #0f380f 0 8px, transparent 8px 10px); }
+[data-theme="gameboy"] .card .msg.ok, [data-theme="gameboy"] .card .msg.err { color: #0f380f; text-shadow: none; }
+[data-theme="gameboy"] .h2sub, [data-theme="gameboy"] footer, [data-theme="gameboy"] .empty { color: #8bac0f; }
+[data-theme="gameboy"] .list .item { background: #9bbc0f; color: #0f380f; border: 3px solid #0f380f; border-radius: 6px; }
+[data-theme="gameboy"] .list .item .rank, [data-theme="gameboy"] .list .item .cnt, [data-theme="gameboy"] .list .item .art { color: #306230; }
+[data-theme="gameboy"] .list .item.hot { border-color: #0f380f; box-shadow: 0 0 0 3px #8bac0f; }
+[data-theme="gameboy"] .list .plus { background: #0f380f; color: #9bbc0f; box-shadow: 0 3px 0 #071d07; }
+[data-theme="gameboy"] .pop { color: #9bbc0f; text-shadow: 3px 3px 0 #0f380f; }

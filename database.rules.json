@@ -9,6 +9,17 @@
         "t": { ".validate": true },
         "$other": { ".validate": false }
       }
+    },
+    "played": {
+      ".read": true,
+      "$key": {
+        ".write": true,
+        ".validate": "$key.length <= 64 && newData.hasChildren(['label', 'count']) && newData.child('label').isString() && newData.child('label').val().length <= 80 && newData.child('count').isNumber() && newData.child('count').val() >= 1 && newData.child('count').val() <= 100000",
+        "label": { ".validate": true },
+        "artist": { ".validate": "newData.isString() && newData.val().length <= 80" },
+        "count": { ".validate": true },
+        "$other": { ".validate": false }
+      }
     }
   }
 }

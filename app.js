@@ -29,13 +29,39 @@ export async function initBackend() {
 async function firebaseBackend(fbConfig) {
   const V = "10.12.2";
   const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
-  const { getDatabase, ref, push, onValue, update, serverTimestamp } =
+  const { getDatabase, ref, push, onValue, update, serverTimestamp, increment } =
     await import(`https://www.gstatic.com/firebasejs/${V}/firebase-database.js`);
   const app = initializeApp(fbConfig);
   const db = getDatabase(app);
   const reqRef = ref(db, "requests");
+  const rootRef = ref(db);
   return {
     demo: false,
+    subscribePlayed(cb) {
+      return onValue(ref(db, "played"), snap => {
+        const val = snap.val() || {};
+        cb(Object.entries(val).map(([key, p]) => ({ key, label: String(p.label || ""), artist: String(p.artist || ""), count: Number(p.count) || 0 })));
+      }, err => { console.warn("Ranking nicht lesbar (Regeln aktualisiert?)", err); cb([]); });
+    },
+    // Song als gespielt markieren: Wünsche entfernen + Zähler +1 (in einem Schritt)
+    markPlayed(cluster, key, label, artist) {
+      const upd = {};
+      cluster.ids.forEach(id => (upd["requests/" + id] = null));
+      upd["played/" + key + "/label"] = label || cluster.label;
+      upd["played/" + key + "/artist"] = artist ?? (cluster.artist || "");
+      upd["played/" + key + "/count"] = increment(1);
+      return update(rootRef, upd).catch(err => {
+        console.warn("Zähler konnte nicht gespeichert werden – entferne nur die Wünsche.", err);
+        const u2 = {}; cluster.ids.forEach(id => (u2[id] = null));
+        return update(reqRef, u2);
+      });
+    },
+    resetPlayed(keys) {
+      if (!keys.length) return Promise.resolve();
+      const upd = {};
+      keys.forEach(k => (upd["played/" + k] = null));
+      return update(rootRef, upd);
+    },
     subscribe(cb) {
       return onValue(reqRef, snap => {
         const val = snap.val() || {};
@@ -56,7 +82,13 @@ async function firebaseBackend(fbConfig) {
 
 function localBackend() {
   const KEY = "songwunsch_demo_requests";
+  const PKEY = "songwunsch_demo_played";
   const listeners = new Set();
+  const pListeners = new Set();
+  const readP = () => { try { return JSON.parse(localStorage.getItem(PKEY) || "{}"); } catch { return {}; } };
+  const toList = o => Object.entries(o).map(([key, p]) => ({ key, ...p }));
+  const writeP = o => { try { localStorage.setItem(PKEY, JSON.stringify(o)); } catch {} pListeners.forEach(cb => cb(toList(o))); };
+  window.addEventListener("storage", e => { if (e.key === PKEY) pListeners.forEach(cb => cb(toList(readP()))); });
   const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } };
   const write = list => {
     try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {}
@@ -72,7 +104,15 @@ function localBackend() {
       write(list);
       return Promise.resolve();
     },
-    remove(ids) { const s = new Set(ids); write(read().filter(r => !s.has(r.id))); return Promise.resolve(); }
+    remove(ids) { const s = new Set(ids); write(read().filter(r => !s.has(r.id))); return Promise.resolve(); },
+    subscribePlayed(cb) { pListeners.add(cb); cb(toList(readP())); return () => pListeners.delete(cb); },
+    markPlayed(cluster, key, label, artist) {
+      const o = readP();
+      o[key] = { label: label || cluster.label, artist: artist ?? (cluster.artist || ""), count: ((o[key] && o[key].count) || 0) + 1 };
+      writeP(o);
+      return this.remove(cluster.ids);
+    },
+    resetPlayed(keys) { const o = readP(); keys.forEach(k => delete o[k]); writeP(o); return Promise.resolve(); }
   };
 }
 
@@ -99,7 +139,17 @@ function normTokens(s) {
   return t;
 }
 
+const _cache = new Map();
 export function analyze(raw) {
+  raw = String(raw);
+  let a = _cache.get(raw);
+  if (a) return a;
+  a = analyzeRaw(raw);
+  if (_cache.size > 3000) _cache.clear();
+  _cache.set(raw, a);
+  return a;
+}
+function analyzeRaw(raw) {
   const tokens = normTokens(raw);
   const rawParts = String(raw).split(SEP).map(p => p.trim()).filter(Boolean);
   let parts = [];
@@ -138,7 +188,18 @@ function partMatch(A, B) {
 
 const nums = a => a.tokens.filter(t => /\d/.test(t)).sort().join(",");
 
+const _mcache = new Map();
 export function matches(A, B) {
+  const k = A.raw < B.raw ? A.raw + "\u0000" + B.raw : B.raw + "\u0000" + A.raw;
+  let r = _mcache.get(k);
+  if (r === undefined) {
+    r = matchesRaw(A, B);
+    if (_mcache.size > 20000) _mcache.clear();
+    _mcache.set(k, r);
+  }
+  return r;
+}
+function matchesRaw(A, B) {
   if (!A.key || !B.key) return false;
   if (A.compact === B.compact) return true;
   // Unterschiedliche Zahlen = unterschiedliche Songs ("Teil 1" ≠ "Teil 2")
@@ -242,6 +303,18 @@ export function clusterRequests(requests) {
       last: Math.max(...times)
     };
   }).sort((x, y) => (y.count - x.count) || (x.first - y.first));
+}
+
+/** Schlüssel für die "Meistgespielt"-Liste: gleicher Song = gleicher Eintrag */
+export function playedKeyFor(label, played) {
+  const a = analyze(label);
+  let best = null;
+  for (const p of played) {
+    if (p.label && matches(a, analyze(p.label)) && (!best || p.count > best.count)) best = p;
+  }
+  if (best) return best.key;
+  const k = a.compact.replace(/[^a-z0-9]/g, "").slice(0, 60);
+  return k || ("s" + hash(label));
 }
 
 // ------------------------------------------------------------
