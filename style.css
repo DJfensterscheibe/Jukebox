@@ -108,13 +108,11 @@ body.demo { padding-top: 26px; }
 /* ============================================================
    SPAR-MODUS (body.lite): weniger gleichzeitige Animationen
    ============================================================ */
-body.lite .grid::before, body.lite .stars { animation: none !important; }
+/* Hintergrund läuft weiter – nur die Zusatz-Effekte werden reduziert */
 body.lite .tongues.back, body.lite .tongues.side-l, body.lite .tongues.side-r, body.lite .sparks { display: none !important; }
-body.lite .rays { animation: none !important; }
 body.lite .coin::after { display: none; }
 body.lite .embers i:nth-child(n+5) { display: none; }
-body.lite .heat { animation: none !important; opacity: .8; }
-body.lite .coin { animation-duration: 3s !important; }
+body.lite .rays { animation-duration: 12s !important; }
 
 /* ============================================================
    DESIGN 2: ARCADE  (data-theme="arcade")

@@ -513,10 +513,13 @@ function render(list) {
   });
   for (const [id, n] of nodes) if (!seen.has(id)) { n.el.remove(); nodes.delete(id); }
 
-  // Reihenfolge nur anfassen, wenn sie sich geändert hat (sonst starten Animationen neu)
-  const want = list.map(c => nodes.get(c.id).el);
-  const have = Array.from(tiles.children);
-  if (want.length !== have.length || want.some((el, i) => el !== have[i])) want.forEach(el => tiles.appendChild(el));
+  // Reihenfolge per CSS "order" statt Boxen umzuhängen –
+  // so laufen Flammen & Münzen beim Umsortieren einfach weiter
+  list.forEach((c, i) => {
+    const el = nodes.get(c.id).el;
+    if (el.style.order !== String(i)) el.style.order = i;
+    if (!el.isConnected) tiles.appendChild(el);
+  });
   firstRender = false;
 
   // Größen nur neu berechnen, wenn sich das Layout geändert hat
@@ -528,30 +531,29 @@ function render(list) {
 // Schriftgröße pro Box (Binärsuche statt Schritt für Schritt)
 function fitText(el, force) {
   const q = el._q;
-  const s = el.classList.contains("s4") ? 4 : el.classList.contains("s3") ? 3 : el.classList.contains("s2") ? 2 : 1;
-  const sig = s + "|" + q.title.textContent + "|" + q.artist.textContent + "|" + tiles.style.getPropertyValue("--row");
+  const sig = el._cls + "|" + q.title.textContent + "|" + q.artist.textContent + "|" + tiles.style.getPropertyValue("--row") + "|" + tiles.style.getPropertyValue("--col") + "|" + innerWidth + "x" + innerHeight;
   if (!force && el._fit === sig) return;
   el._fit = sig;
-  const base = [0, 36, 44, 60, 74][s];
   const set = fs => { q.title.style.setProperty("--fs", fs + "px"); q.artist.style.setProperty("--fs", fs + "px"); };
   const over = () => q.label.scrollHeight > q.label.clientHeight + 1 || q.title.scrollWidth > q.title.clientWidth + 1;
+  // Größte Schrift suchen, die noch komplett in die Box passt (Binärsuche)
+  const max = Math.max(16, Math.min(170, Math.floor(q.label.clientHeight * 0.9)));
   const search = () => {
-    set(base);
-    if (!over()) return base;
-    let lo = 12, hi = base;
+    set(max);
+    if (!over()) return max;
+    let lo = 12, hi = max;
     while (hi - lo > 1) { const mid = (lo + hi) >> 1; set(mid); if (over()) hi = mid; else lo = mid; }
     set(lo);
     return lo;
   };
   const hasArtist = !!q.artist.textContent;
-  q.artist.hidden = !hasArtist;
+  if (!hasArtist) { q.artist.hidden = true; search(); return; }
+  // Mit und ohne Künstlerzeile probieren: Künstler nur zeigen, wenn der Titel dadurch groß genug bleibt
+  q.artist.hidden = true;
+  const without = search();
+  q.artist.hidden = false;
   const withArtist = search();
-  // Wird der Titel wegen des Künstlers zu klein, lieber den Künstler weglassen
-  if (hasArtist && withArtist < base * 0.8) {
-    q.artist.hidden = true;
-    const without = search();
-    if (without < withArtist + 6) { q.artist.hidden = false; search(); }
-  }
+  if (withArtist < without * 0.72) { q.artist.hidden = true; set(without); }
 }
 function fitAll(force) { for (const n of nodes.values()) fitText(n.el, force); }
 
@@ -636,17 +638,19 @@ $("fx").onclick = () => {
   try { localStorage.setItem(FX_KEY, fxMode); } catch {}
   applyFx();
 };
-// Automatik: misst die Bildrate; ruckelt es dauerhaft, werden Effekte reduziert
+// Automatik (nur im Modus AUTO): erst nach 10 s messen, und nur bei dauerhaft starkem Ruckeln reduzieren
 (function watchFps() {
-  let frames = 0, t0 = performance.now(), slow = 0, fast = 0;
+  let frames = 0, t0 = performance.now() + 10000, slow = 0;
   function tick(t) {
-    frames++;
-    if (t - t0 >= 3000) {
-      const fps = frames * 1000 / (t - t0);
-      frames = 0; t0 = t;
-      if (document.visibilityState === "visible") {
-        if (fps < 40) { slow++; fast = 0; } else if (fps > 57) { fast++; slow = 0; }
-        if (!autoLite && slow >= 2) { autoLite = true; applyFx(); }
+    if (t >= t0) {
+      frames++;
+      if (t - t0 >= 4000) {
+        const fps = frames * 1000 / (t - t0);
+        frames = 0; t0 = t;
+        if (document.visibilityState === "visible" && fxMode === "auto") {
+          slow = fps < 28 ? slow + 1 : 0;
+          if (!autoLite && slow >= 3) { autoLite = true; applyFx(); }
+        }
       }
     }
     requestAnimationFrame(tick);

@@ -7,6 +7,8 @@ export const config = {
   partyName: CFG.partyName || "PARTY",
   cooldownSeconds: Number(CFG.cooldownSeconds ?? 30),
   flameAt: Number(CFG.flameAt ?? 5),
+  effects: CFG.effects || "high",
+  theme: CFG.theme || "synthwave",
   firebase: CFG.firebase || {}
 };
 export const MAX_LEN = 80;

@@ -15,9 +15,9 @@ window.SONGWUNSCH_CONFIG = {
   // Design: "synthwave" (Standard), "arcade", "vapor" oder "gameboy"
   theme: "synthwave",
 
-  // Effekte auf dem Host-Bildschirm: "auto" (reduziert bei Ruckeln von selbst),
-  // "high" (immer alles) oder "low" (immer sparsam)
-  effects: "auto",
+  // Effekte auf dem Host-Bildschirm: "high" (immer alles, Standard),
+  // "auto" (reduziert nur bei starkem Ruckeln) oder "low" (immer sparsam)
+  effects: "high",
 
   // ----------------------------------------------------------
   //  Firebase-Zugangsdaten (siehe ANLEITUNG.md, Schritt 1)
